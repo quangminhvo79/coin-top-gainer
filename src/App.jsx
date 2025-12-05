@@ -8,21 +8,37 @@ import TradingViewChart from './components/TradingViewChart';
 function App() {
   const [coins, setCoins] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(() => {
+    // Load auto-refresh preference from localStorage, default to true
+    const saved = localStorage.getItem('autoRefresh');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
   const [stats, setStats] = useState({
     totalVolume: 0,
     avgGain: 0,
     topGainer: null
   });
 
+  // Save auto-refresh preference to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('autoRefresh', JSON.stringify(autoRefresh));
+  }, [autoRefresh]);
+
   useEffect(() => {
     fetchTopGainers();
-    const interval = setInterval(fetchTopGainers, 30000); // Update every 30s
-    return () => clearInterval(interval);
-  }, []);
+
+    if (autoRefresh) {
+      const interval = setInterval(fetchTopGainers, 30000); // Update every 30s
+      return () => clearInterval(interval);
+    }
+  }, [autoRefresh]);
 
   const fetchTopGainers = async () => {
     try {
-      setLoading(true);
+      // Only show loading state if we have no coins yet (initial load)
+      if (coins.length === 0) {
+        setLoading(true);
+      }
 
       // Fetch 24hr ticker price change statistics
       const response = await fetch('https://www.binance.com/fapi/v1/topMovers');
@@ -111,7 +127,7 @@ function App() {
     if (isMobile) {
       // For mobile: Try to open Binance app, fallback to mobile web
       // Binance app deep link format
-      const appUrl = `binance://markets/trade/${baseSymbol}_USDT`;
+      const appUrl = `bnc://markets/trade/${baseSymbol}_USDT`;
       const fallbackUrl = `https://www.binance.com/en/futures/${baseSymbol}_USDT`;
 
       // Try to open app
@@ -133,8 +149,12 @@ function App() {
       <BackgroundEffect />
 
       <div className="relative z-10">
-        <Header onRefresh={fetchTopGainers} loading={loading} />
-
+        <Header
+          onRefresh={fetchTopGainers}
+          loading={loading}
+          autoRefresh={autoRefresh}
+          onToggleAutoRefresh={() => setAutoRefresh(!autoRefresh)}
+        />
         <main className="container mx-auto px-4 py-8 max-w-7xl">
           {/* Stats Overview */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-[fadeIn_0.6s_ease-out] hidden">
@@ -193,7 +213,7 @@ function App() {
                           <p className="text-xs text-orange-500">{coin.period}</p>
                         </div>
                       </div>
-                      <TradingViewChart symbol={coin.symbol} interval={coin.period} />
+                      <TradingViewChart symbol={coin.symbol} interval="1h" />
 
                       <div className="mt-4 text-center group-hover:opacity-100 transition-opacity">
                         <button

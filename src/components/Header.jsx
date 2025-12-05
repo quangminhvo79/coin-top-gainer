@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-function Header({ onRefresh, loading }) {
+function Header({ onRefresh, loading, autoRefresh, onToggleAutoRefresh }) {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -61,6 +61,35 @@ function Header({ onRefresh, loading }) {
                 })}
               </div>
             </div>
+
+            {/* Auto-Refresh Toggle Button */}
+            <button
+              onClick={onToggleAutoRefresh}
+              className={`glass hover-glow rounded-xl px-4 py-3 flex items-center space-x-2 transition-all duration-300 group ${
+                autoRefresh ? 'bg-green-500/20 border-green-500/50' : 'bg-gray-500/20 border-gray-500/50'
+              }`}
+              title={autoRefresh ? 'Auto-refresh enabled (30s)' : 'Auto-refresh disabled'}
+            >
+              <svg
+                className={`w-5 h-5 transition-all duration-300 ${autoRefresh ? 'text-green-400' : 'text-gray-400'}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d={autoRefresh
+                    ? "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    : "M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  }
+                />
+              </svg>
+              <span className="hidden md:inline font-medium">
+                Auto {autoRefresh ? 'ON' : 'OFF'}
+              </span>
+            </button>
 
             {/* Refresh Button */}
             <button
