@@ -111,7 +111,7 @@ function App() {
     if (isMobile) {
       // For mobile: Try to open Binance app, fallback to mobile web
       // Binance app deep link format
-      const appUrl = `binance://markets/futures/${baseSymbol}_USDT`;
+      const appUrl = `binance://markets/trade/${baseSymbol}_USDT`;
       const fallbackUrl = `https://www.binance.com/en/futures/${baseSymbol}_USDT`;
 
       // Try to open app
@@ -137,7 +137,7 @@ function App() {
 
         <main className="container mx-auto px-4 py-8 max-w-7xl">
           {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-[fadeIn_0.6s_ease-out]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-[fadeIn_0.6s_ease-out] hidden">
             <StatCard
               title="Total Volume"
               value={formatVolume(stats.totalVolume)}
@@ -172,7 +172,7 @@ function App() {
                 Live candlestick charts with 15-minute intervals
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {coins.slice(0, 6).map((coin, index) => (
+                {coins.slice(0, 10).map((coin, index) => (
                   <div
                     key={coin.symbol}
                     className="animate-[fadeIn_0.6s_ease-out]"

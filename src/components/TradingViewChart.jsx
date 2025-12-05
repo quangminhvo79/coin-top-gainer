@@ -1,10 +1,22 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createChart, CandlestickSeries } from 'lightweight-charts';
 
 function TradingViewChart({ symbol, interval }) {
   const chartContainerRef = useRef(null);
   const chartRef = useRef(null);
   const candlestickSeriesRef = useRef(null);
+  const [selectedInterval, setSelectedInterval] = useState(interval || '15m');
+
+  // Available timeframes
+  const timeframes = [
+    { label: '1m', value: '1m' },
+    { label: '5m', value: '5m' },
+    { label: '15m', value: '15m' },
+    { label: '30m', value: '30m' },
+    { label: '1h', value: '1h' },
+    { label: '4h', value: '4h' },
+    { label: '1d', value: '1d' },
+  ];
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -54,7 +66,7 @@ function TradingViewChart({ symbol, interval }) {
     candlestickSeriesRef.current = candlestickSeries;
 
     // Fetch candle data
-    fetchCandleData(symbol, interval, candlestickSeries);
+    fetchCandleData(symbol, selectedInterval, candlestickSeries);
 
     // Handle resize
     const handleResize = () => {
@@ -73,7 +85,7 @@ function TradingViewChart({ symbol, interval }) {
         chart.remove();
       }
     };
-  }, [symbol]);
+  }, [symbol, selectedInterval]);
 
   const fetchCandleData = async (symbol, interval, candlestickSeries) => {
     try {
@@ -115,8 +127,26 @@ function TradingViewChart({ symbol, interval }) {
   };
 
   return (
-    <div className="w-full h-[300px] rounded-lg overflow-hidden glass p-2">
-      <div ref={chartContainerRef} className="w-full h-full" />
+    <div className="w-full rounded-lg overflow-hidden glass p-2">
+      {/* Timeframe Selector */}
+      <div className="flex gap-1 mb-2 flex-wrap">
+        {timeframes.map((tf) => (
+          <button
+            key={tf.value}
+            onClick={() => setSelectedInterval(tf.value)}
+            className={`px-3 py-1 text-xs font-semibold rounded transition-all duration-200 ${
+              selectedInterval === tf.value
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            {tf.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Chart Container */}
+      <div ref={chartContainerRef} className="w-full h-[300px]" />
     </div>
   );
 }
