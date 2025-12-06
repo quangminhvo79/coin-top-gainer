@@ -1,13 +1,8 @@
-import { useState, useEffect } from 'react';
-
-function Header({ onRefresh, loading, autoRefresh, onToggleAutoRefresh }) {
-  const [time, setTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
+/**
+ * Presentational component for Header
+ * Pure UI component that receives all data and handlers as props
+ */
+function HeaderPresentation({ time, onRefresh, loading, autoRefresh, onToggleAutoRefresh }) {
   return (
     <header className="glass-heavy border-b border-white/10 sticky top-0 z-50 backdrop-blur-3xl">
       <nav className="container mx-auto px-6 py-5 max-w-7xl">
@@ -134,4 +129,4 @@ function Header({ onRefresh, loading, autoRefresh, onToggleAutoRefresh }) {
   );
 }
 
-export default Header;
+export default HeaderPresentation;
