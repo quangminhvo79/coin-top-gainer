@@ -182,45 +182,68 @@ function App() {
             />
           </div>
 
-          {/* TradingView Charts for Top 6 */}
+          {/* TradingView Charts for Top Performers */}
           {!loading && coins.length > 0 && (
-            <div className="mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold orbitron mb-6 gradient-text">
-                Top 6 Charts
-              </h2>
-              <p className="text-gray-400 mb-8 text-lg">
-                Live candlestick charts with 15-minute intervals
-              </p>
+            <div className="mb-20">
+              <div className="mb-8">
+                <h2 className="text-4xl md:text-5xl font-extrabold gradient-text mb-3"
+                    style={{ fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.03em' }}>
+                  Live Market Charts
+                </h2>
+                <p className="text-gray-400 text-lg mono-data">
+                  Real-time candlestick analysis • 1-hour intervals
+                </p>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {coins.slice(0, 10).map((coin, index) => (
                   <div
                     key={coin.symbol}
                     className="animate-[fadeIn_0.6s_ease-out]"
-                    style={{ animationDelay: `${index * 0.1}s` }}
+                    style={{ animationDelay: `${index * 0.08}s` }}
                   >
-                    <div className="glass rounded-2xl p-4 hover-glow transition-all duration-300">
-                      <div className="flex items-center justify-between mb-4">
+                    <div className="frosted-card glow-border p-5 hover-glow transition-all duration-500 group relative overflow-hidden">
+                      {/* Decorative gradient overlay */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-500 pointer-events-none">
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#00d4ff] to-[#00ff88] blur-3xl" />
+                      </div>
+
+                      <div className="flex items-center justify-between mb-4 relative z-10">
                         <div>
-                          <h3 className="text-xl font-bold orbitron text-white">
-                            {coin.symbol.replace('USDT', '')} / USDT
+                          <h3 className="text-xl font-extrabold text-white"
+                              style={{ fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.02em' }}>
+                            {coin.symbol.replace('USDT', '')} <span className="text-gray-500 font-light text-base">/ USDT</span>
                           </h3>
-                          <p className="text-sm text-gray-400">{coin.period} Interval</p>
+                          <p className="text-xs text-gray-400 mono-data tracking-wider mt-0.5">1H TIMEFRAME</p>
                         </div>
                         <div className="text-right">
-                          <div className="text-lg font-bold text-green-400">
+                          <div className="text-xl font-extrabold text-[#00ff88] mono-data neon-accent"
+                               style={{ textShadow: '0 0 20px rgba(0, 255, 136, 0.5)' }}>
                             +{(coin.change * 100).toFixed(2)}%
                           </div>
-                          <p className="text-xs text-orange-500">{coin.period}</p>
+                          <p className="text-xs text-[#00d4ff] mono-data font-semibold uppercase tracking-wider">{coin.period}</p>
                         </div>
                       </div>
-                      <TradingViewChart symbol={coin.symbol} interval="1h" />
 
-                      <div className="mt-4 text-center group-hover:opacity-100 transition-opacity">
+                      <div className="relative z-10 rounded-xl overflow-hidden"
+                           style={{
+                             boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.3)',
+                             border: '1px solid rgba(255, 255, 255, 0.05)'
+                           }}>
+                        <TradingViewChart symbol={coin.symbol} interval="1h" />
+                      </div>
+
+                      <div className="mt-4 text-center opacity-0 group-hover:opacity-100 transition-all duration-500 transform group-hover:translate-y-0 translate-y-2 relative z-10">
                         <button
                           onClick={() => handleTrade(coin.symbol)}
-                          className="text-xs text-black font-semibold font-mono px-10 py-2 border-yellow-400 bg-yellow-400 rounded-lg hover:bg-yellow-500 hover:scale-105 transition-all duration-200"
+                          className="relative px-8 py-2.5 rounded-xl font-bold text-sm tracking-wider uppercase overflow-hidden group/btn transition-all duration-300 hover:scale-105"
+                          style={{
+                            background: 'linear-gradient(135deg, #00d4ff 0%, #00ff88 100%)',
+                            boxShadow: '0 0 30px rgba(0, 212, 255, 0.4), 0 4px 20px rgba(0, 0, 0, 0.3)',
+                            color: '#0a0a14'
+                          }}
                         >
-                          TRADE
+                          <span className="relative z-10 font-extrabold">Trade Now</span>
+                          <div className="absolute inset-0 bg-gradient-to-r from-[#00ff88] to-[#00d4ff] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
                         </button>
                       </div>
                     </div>
@@ -231,12 +254,13 @@ function App() {
           )}
 
           {/* Top Gainers Grid */}
-          <div className="mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold orbitron mb-6 gradient-text">
+          <div className="mb-10">
+            <h2 className="text-4xl md:text-5xl font-extrabold gradient-text mb-3"
+                style={{ fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.03em' }}>
               All Top Gainers
             </h2>
-            <p className="text-gray-400 mb-8 text-lg">
-              Real-time tracking of the highest performing cryptocurrencies on Binance
+            <p className="text-gray-400 text-lg mono-data">
+              Complete list of highest performing assets • Live updates
             </p>
           </div>
 
@@ -264,13 +288,24 @@ function App() {
           )}
 
           {/* Footer Info */}
-          <div className="mt-16 text-center glass rounded-2xl p-8">
-            <p className="text-gray-400 mb-2">
-              Data updates every 30 seconds via Binance API
+          <div className="mt-20 text-center frosted-card p-10">
+            <div className="inline-block mb-4">
+              <div className="flex items-center space-x-2 text-[#00d4ff]">
+                <div className="w-2 h-2 bg-[#00d4ff] rounded-full animate-pulse"
+                     style={{ boxShadow: '0 0 10px rgba(0, 212, 255, 0.8)' }} />
+                <p className="text-gray-300 mono-data font-medium tracking-wide">
+                  Live Data Stream • Updated every 30s
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500 mono-data">
+              Powered by Binance API • Minimum volume $1M USDT • USDT pairs only
             </p>
-            <p className="text-sm text-gray-500">
-              Minimum volume filter: $1M USDT • Showing USDT pairs only
-            </p>
+            <div className="mt-6 pt-6 border-t border-white/5">
+              <p className="text-xs text-gray-600 mono-data tracking-wider">
+                CRYSTAL EXCHANGE © 2024 • Real-time Cryptocurrency Analytics
+              </p>
+            </div>
           </div>
         </main>
       </div>
