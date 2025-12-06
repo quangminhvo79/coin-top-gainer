@@ -1,9 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import CoinCard from './components/CoinCard';
 import StatCard from './components/StatCard';
 import Header from './components/Header';
 import BackgroundEffect from './components/BackgroundEffect';
 import TradingViewChart from './components/TradingViewChart';
+
+const formatVolume = (vol) => {
+  if (vol >= 1e9) return `$${(vol / 1e9).toFixed(2)}B`;
+  if (vol >= 1e6) return `$${(vol / 1e6).toFixed(2)}M`;
+  return `$${vol.toFixed(2)}`;
+};
 
 function App() {
   const [coins, setCoins] = useState([]);
@@ -24,16 +30,26 @@ function App() {
     localStorage.setItem('autoRefresh', JSON.stringify(autoRefresh));
   }, [autoRefresh]);
 
-  useEffect(() => {
-    fetchTopGainers();
+  const generateSparklineData = useCallback((low, high, current) => {
+    const points = 20;
+    const data = [];
+    const range = high - low;
 
-    if (autoRefresh) {
-      const interval = setInterval(fetchTopGainers, 30000); // Update every 30s
-      return () => clearInterval(interval);
+    for (let i = 0; i < points; i++) {
+      // Create a somewhat realistic price movement
+      const variance = Math.random() * 0.6 + 0.2; // 0.2 to 0.8
+      const trend = (i / points) * 0.7 + 0.15; // Upward trend
+      const value = low + (range * variance * trend);
+      data.push(value);
     }
-  }, [autoRefresh]);
 
-  const fetchTopGainers = async () => {
+    // Ensure last point is close to current price
+    data[points - 1] = current;
+
+    return data;
+  }, []);
+
+  const fetchTopGainers = useCallback(async () => {
     try {
       // Only show loading state if we have no coins yet (initial load)
       if (coins.length === 0) {
@@ -90,34 +106,9 @@ function App() {
       console.error('Error fetching data:', error);
       setLoading(false);
     }
-  };
+  }, [coins.length, generateSparklineData]);
 
-  const generateSparklineData = (low, high, current) => {
-    const points = 20;
-    const data = [];
-    const range = high - low;
-
-    for (let i = 0; i < points; i++) {
-      // Create a somewhat realistic price movement
-      const variance = Math.random() * 0.6 + 0.2; // 0.2 to 0.8
-      const trend = (i / points) * 0.7 + 0.15; // Upward trend
-      const value = low + (range * variance * trend);
-      data.push(value);
-    }
-
-    // Ensure last point is close to current price
-    data[points - 1] = current;
-
-    return data;
-  };
-
-  const formatVolume = (vol) => {
-    if (vol >= 1e9) return `$${(vol / 1e9).toFixed(2)}B`;
-    if (vol >= 1e6) return `$${(vol / 1e6).toFixed(2)}M`;
-    return `$${vol.toFixed(2)}`;
-  };
-
-  const handleTrade = (symbol) => {
+  const handleTrade = useCallback((symbol) => {
     // Detect if user is on mobile device
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
@@ -142,7 +133,16 @@ function App() {
       const webUrl = `https://www.binance.com/en/futures/${baseSymbol}_USDT`;
       window.open(webUrl, '_blank', 'noopener,noreferrer');
     }
-  };
+  }, []);
+
+   useEffect(() => {
+    fetchTopGainers();
+
+    if (autoRefresh) {
+      const interval = setInterval(fetchTopGainers, 30000); // Update every 30s
+      return () => clearInterval(interval);
+    }
+  }, [autoRefresh, fetchTopGainers]);
 
   return (
     <div className="min-h-screen relative overflow-hidden">

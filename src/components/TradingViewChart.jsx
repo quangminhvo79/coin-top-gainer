@@ -90,12 +90,12 @@ function TradingViewChart({ symbol, interval }) {
   const fetchCandleData = async (symbol, interval, candlestickSeries) => {
     try {
       // Remove USDT suffix if present
-      const baseSymbol = symbol.replace('USDT', '');
+      // const baseSymbol = symbol.replace('USDT', '');
 
       // Fetch klines data from Binance Futures API
       // interval: 15m (15 minutes), limit: 100 candles
       const response = await fetch(
-        `https://fapi.binance.com/fapi/v1/klines?symbol=${baseSymbol}USDT&interval=${interval}&limit=100`
+        `https://fapi.binance.com/fapi/v1/continuousKlines?pair=${symbol}&interval=${interval}&contractType=PERPETUAL&limit=100`
       );
 
       if (!response.ok) {
