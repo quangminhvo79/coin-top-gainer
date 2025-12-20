@@ -1,78 +1,62 @@
-import { useState, useCallback } from 'react';
-import { generateSparklineData } from '../utils/formatters';
+import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { fetchTopMovers } from '../services/binanceApi';
 
 /**
- * Custom hook for fetching and managing top gainers data
+ * Query key for top gainers data
  */
-export const useTopGainers = () => {
-  const [coins, setCoins] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
-    totalVolume: 0,
-    avgGain: 0,
-    topGainer: null
+export const TOP_GAINERS_QUERY_KEY = ['topGainers'];
+
+/**
+ * Custom hook for fetching and managing top gainers data with React Query
+ * @param {boolean} enableAutoRefresh - Whether to enable automatic 30s refetching
+ */
+export const useTopGainers = (enableAutoRefresh = true) => {
+  const [selectedPeriod, setSelectedPeriod] = useState(null);
+
+  // Fetch all top gainers data with React Query
+  const {
+    data,
+    isLoading,
+    isFetching,
+    error,
+    refetch
+  } = useQuery({
+    queryKey: TOP_GAINERS_QUERY_KEY,
+    queryFn: fetchTopMovers,
+    staleTime: 25000,
+    refetchInterval: enableAutoRefresh ? 30000 : false, // Auto-refresh every 30s
+    refetchIntervalInBackground: false, // Don't refetch when tab not visible
   });
 
-  const fetchTopGainers = useCallback(async () => {
-    try {
-      // Only show loading state if we have no coins yet (initial load)
-      if (coins.length === 0) {
-        setLoading(true);
-      }
+  // Initialize selectedPeriod when data loads
+  const availablePeriods = data?.periods || [];
+  if (!selectedPeriod && availablePeriods.length > 0) {
+    setSelectedPeriod(availablePeriods[0]);
+  }
 
-      const response = await fetch('https://www.binance.com/fapi/v1/topMovers');
-      const data = await response.json();
+  // Client-side filtering by selected period
+  const filteredCoins = useMemo(() => {
+    if (!data?.coins) return [];
+    if (!selectedPeriod) return data.coins;
 
-      // Filter USDT pairs and sort by price change percentage
-      const usdtPairs = data
-        .filter(coin =>
-          coin.symbol.endsWith('USDT') &&
-          parseFloat(coin.priceChange) > 0 &&
-          (coin.period === "5m" || coin.period === "2h")
-        )
-        .slice(0, 60);
-
-      // Enrich coins with additional data
-      const enrichedCoins = usdtPairs.map(coin => ({
-        symbol: coin.symbol,
-        price: parseFloat(coin.lastPrice),
-        change: parseFloat(coin.priceChange),
-        volume: parseFloat(coin.quoteVolume),
-        high: parseFloat(coin.highPrice),
-        low: parseFloat(coin.lowPrice),
-        priceChange: parseFloat(coin.priceChange),
-        trades: coin.count,
-        period: coin.period,
-        sparkline: generateSparklineData(
-          parseFloat(coin.lowPrice),
-          parseFloat(coin.highPrice),
-          parseFloat(coin.lastPrice)
-        )
-      }));
-
-      setCoins(enrichedCoins);
-
-      // Calculate stats
-      const totalVol = enrichedCoins.reduce((sum, coin) => sum + coin.volume, 0);
-      const avgChange = enrichedCoins.reduce((sum, coin) => sum + coin.change, 0) / enrichedCoins.length;
-
-      setStats({
-        totalVolume: totalVol,
-        avgGain: avgChange,
-        topGainer: enrichedCoins[0]
-      });
-
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setLoading(false);
-    }
-  }, [coins.length]);
+    return data.coins.filter(coin => coin.period === selectedPeriod);
+  }, [data?.coins, selectedPeriod]);
 
   return {
-    coins,
-    loading,
-    stats,
-    fetchTopGainers
+    coins: filteredCoins,
+    allCoins: data?.coins || [],
+    loading: isLoading, // Only true on initial load
+    isFetching, // True during background refetches
+    error,
+    stats: data?.stats || {
+      totalVolume: 0,
+      avgGain: 0,
+      topGainer: null
+    },
+    fetchTopGainers: refetch, // Expose refetch as fetchTopGainers for backward compatibility
+    selectedPeriod,
+    setSelectedPeriod,
+    availablePeriods
   };
 };
