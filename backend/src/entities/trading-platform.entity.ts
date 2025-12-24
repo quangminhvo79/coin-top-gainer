@@ -52,6 +52,12 @@ export class TradingPlatform {
     baseUrl?: string;
     permissions?: string[];
     rateLimits?: Record<string, number>;
+    futuresConfig?: {
+      defaultLeverage?: number;
+      defaultTakeProfitPercent?: number;
+      defaultStopLossPercent?: number;
+      autoTpSl?: boolean;
+    };
   };
 
   @ManyToOne(() => User, (user) => user.tradingPlatforms, {

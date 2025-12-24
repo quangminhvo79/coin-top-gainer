@@ -1,3 +1,6 @@
+import { Link } from 'react-router-dom';
+import logo from '../../assets/crystal_exchange_logo.png';
+
 /**
  * Presentational component for Header
  * Pure UI component that receives all data and handlers as props
@@ -9,25 +12,12 @@ function HeaderPresentation({ time, onRefresh, loading, autoRefresh, onToggleAut
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-4">
-            <div className="relative floating">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#00d4ff] to-[#00ff88] rounded-2xl blur-xl opacity-60"
-                   style={{ animation: 'pulse-glow 3s ease-in-out infinite' }} />
-              <div className="relative bg-gradient-to-br from-[#00d4ff] to-[#00ff88] p-3.5 rounded-2xl"
-                   style={{ boxShadow: '0 0 30px rgba(0, 212, 255, 0.5), 0 0 60px rgba(0, 255, 136, 0.3)' }}>
-                <svg
-                  className="w-7 h-7 text-[#0a0a14]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2.5}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                  />
-                </svg>
-              </div>
+            <div className="relative">
+              <img
+                src={logo}
+                alt="Crystal Exchange Logo"
+                className="w-14 h-14 object-contain rounded-md"
+              />
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-extrabold gradient-text"
@@ -42,23 +32,32 @@ function HeaderPresentation({ time, onRefresh, loading, autoRefresh, onToggleAut
 
           {/* Right Side */}
           <div className="flex items-center space-x-3">
-            {/* Time */}
-            <div className="hidden md:block text-right glass rounded-2xl px-4 py-2.5">
-              <div className="text-xs mono-data text-gray-400 tracking-wider">
-                {time.toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
-              </div>
-              <div className="text-base mono-data font-bold text-[#00d4ff]">
-                {time.toLocaleTimeString('en-US', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  second: '2-digit'
-                })}
-              </div>
-            </div>
+            {/* Trading Dashboard Link */}
+            <Link
+              to="/trading"
+              className="glass rounded-xl px-4 py-2.5 flex items-center space-x-2 transition-all duration-500 hover:border-[#00ff88]/50 group relative overflow-hidden"
+              style={{
+                boxShadow: '0 0 10px rgba(0, 255, 136, 0.2)'
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-[#00ff88]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <svg
+                className="w-5 h-5 text-[#00ff88] relative z-10"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                />
+              </svg>
+              <span className="hidden lg:inline font-semibold text-sm relative z-10 text-white">
+                Trading
+              </span>
+            </Link>
 
             {/* Auto-Refresh Toggle Button */}
             <button
@@ -122,6 +121,24 @@ function HeaderPresentation({ time, onRefresh, loading, autoRefresh, onToggleAut
               </svg>
               <span className="hidden md:inline font-semibold text-sm relative z-10">Refresh</span>
             </button>
+
+            {/* Time */}
+            <div className="hidden md:block text-right glass rounded-2xl px-4 py-2.5">
+              <div className="text-xs mono-data text-gray-400 tracking-wider">
+                {time.toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </div>
+              <div className="text-base mono-data font-bold text-[#00d4ff]">
+                {time.toLocaleTimeString('en-US', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit'
+                })}
+              </div>
+            </div>
           </div>
         </div>
       </nav>

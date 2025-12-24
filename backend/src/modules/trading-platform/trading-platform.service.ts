@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { TradingPlatform } from '../../entities/trading-platform.entity';
 import { CreatePlatformDto } from './dto/create-platform.dto';
 import { UpdatePlatformDto } from './dto/update-platform.dto';
+import { UpdateFuturesSettingsDto } from '../futures-trading/dto/update-futures-settings.dto';
 
 @Injectable()
 export class TradingPlatformService {
@@ -104,5 +105,23 @@ export class TradingPlatformService {
     const platform = await this.findOne(id, userId);
     platform.lastSyncedAt = new Date();
     await this.platformRepository.save(platform);
+  }
+
+  async updateFuturesSettings(
+    id: string,
+    userId: string,
+    futuresSettings: UpdateFuturesSettingsDto,
+  ): Promise<TradingPlatform> {
+    const platform = await this.findOne(id, userId);
+
+    platform.settings = {
+      ...platform.settings,
+      futuresConfig: {
+        ...platform.settings?.futuresConfig,
+        ...futuresSettings,
+      },
+    };
+
+    return this.platformRepository.save(platform);
   }
 }

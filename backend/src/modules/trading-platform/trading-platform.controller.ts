@@ -12,6 +12,7 @@ import {
 import { TradingPlatformService } from './trading-platform.service';
 import { CreatePlatformDto } from './dto/create-platform.dto';
 import { UpdatePlatformDto } from './dto/update-platform.dto';
+import { UpdateFuturesSettingsDto } from '../futures-trading/dto/update-futures-settings.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('platforms')
@@ -53,5 +54,14 @@ export class TradingPlatformController {
     const result = await this.platformService.syncBalances(id, req.user.userId);
     await this.platformService.updateLastSynced(id, req.user.userId);
     return result;
+  }
+
+  @Put(':id/futures-settings')
+  updateFuturesSettings(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() updateDto: UpdateFuturesSettingsDto,
+  ) {
+    return this.platformService.updateFuturesSettings(id, req.user.userId, updateDto);
   }
 }

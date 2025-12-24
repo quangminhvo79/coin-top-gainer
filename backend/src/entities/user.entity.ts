@@ -27,6 +27,12 @@ export class User {
   @Column({ nullable: true })
   lastName: string;
 
+  @Column({ nullable: true })
+  resetPasswordToken?: string;
+
+  @Column({ nullable: true })
+  resetPasswordExpires?: Date;
+
   @OneToMany(() => Account, (account) => account.user)
   accounts: Account[];
 
