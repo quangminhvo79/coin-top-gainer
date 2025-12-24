@@ -44,7 +44,7 @@ export const useActiveOrders = (refreshTrigger = 0) => {
   return useQuery({
     queryKey: [...TRADING_KEYS.activeOrders, refreshTrigger],
     queryFn: () => fetchAPI('/api/v1/futures/orders?status=ACTIVE,PENDING'),
-    refetchInterval: 10000, // Auto-refresh every 10 seconds
+    // refetchInterval: 10000, // Auto-refresh every 10 seconds
   });
 };
 

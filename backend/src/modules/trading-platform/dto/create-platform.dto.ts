@@ -25,8 +25,14 @@ export class CreatePlatformDto {
   @IsOptional()
   @IsObject()
   settings?: {
-    baseUrl?: string;
     permissions?: string[];
     rateLimits?: Record<string, number>;
+    futuresConfig?: {
+      defaultLeverage?: number;
+      defaultTakeProfitPercent?: number;
+      defaultStopLossPercent?: number;
+      defaultPositionSizePercent?: number;
+      autoTpSl?: boolean;
+    };
   };
 }

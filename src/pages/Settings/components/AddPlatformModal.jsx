@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import apiClient from '../../../utils/apiClient';
+import binanceLogo from '../../../assets/binance-logo.webp';
+import okxLogo from '../../../assets/okx-logo.webp';
+import bybitLogo from '../../../assets/bybit-logo.webp';
 
 function AddPlatformModal({ onClose }) {
   const [formData, setFormData] = useState({
@@ -14,10 +17,10 @@ function AddPlatformModal({ onClose }) {
   const [error, setError] = useState('');
 
   const platforms = [
-    { value: 'binance', label: 'Binance', icon: '🟡' },
-    { value: 'okx', label: 'OKX', icon: '⚫' },
-    { value: 'bybit', label: 'Bybit', icon: '🟠' },
-    { value: 'custom', label: 'Custom', icon: '⚪' },
+    { value: 'binance', label: 'Binance', icon: '🟡', logo: binanceLogo },
+    { value: 'okx', label: 'OKX', icon: '⚫', logo: okxLogo },
+    { value: 'bybit', label: 'Bybit', icon: '🟠', logo: bybitLogo },
+    { value: 'custom', label: 'Custom', icon: '⚪', logo: null },
   ];
 
   const handleSubmit = async (e) => {
@@ -91,7 +94,15 @@ function AddPlatformModal({ onClose }) {
                     }
                   `}
                 >
-                  <div className="text-3xl mb-2">{platform.icon}</div>
+                  {platform.logo ? (
+                    <img
+                      src={platform.logo}
+                      alt={`${platform.label} logo`}
+                      className="w-12 h-12 object-contain rounded-md mx-auto mb-2"
+                    />
+                  ) : (
+                    <div className="text-3xl mb-2">{platform.icon}</div>
+                  )}
                   <div className="text-white font-medium">{platform.label}</div>
                 </button>
               ))}

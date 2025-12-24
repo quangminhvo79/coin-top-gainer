@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import apiClient from '../../../utils/apiClient';
+import binanceLogo from '../../../assets/binance-logo.webp';
+import okxLogo from '../../../assets/okx-logo.webp';
+import bybitLogo from '../../../assets/bybit-logo.webp';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -10,12 +13,18 @@ function PlatformSettings({ platform, isSelected, onClick }) {
     defaultLeverage: platform.settings?.futuresConfig?.defaultLeverage || 10,
     defaultTakeProfitPercent: platform.settings?.futuresConfig?.defaultTakeProfitPercent || 5,
     defaultStopLossPercent: platform.settings?.futuresConfig?.defaultStopLossPercent || 3,
-    defaultPositionSize: platform.settings?.futuresConfig?.defaultPositionSize || 100,
-    defaultSymbol: platform.settings?.futuresConfig?.defaultSymbol || 'BTCUSDT',
-    defaultOrderType: platform.settings?.futuresConfig?.defaultOrderType || 'MARKET',
+    defaultPositionSizePercent: platform.settings?.futuresConfig?.defaultPositionSizePercent || 50,
     autoTpSl: platform.settings?.futuresConfig?.autoTpSl || false,
-    confirmBeforePlacing: platform.settings?.futuresConfig?.confirmBeforePlacing !== false,
   });
+
+  const platformLogos = {
+    binance: binanceLogo,
+    okx: okxLogo,
+    bybit: bybitLogo,
+    coinbase: null, // Using emoji fallback
+    kraken: null,   // Using emoji fallback
+    custom: null,   // Using emoji fallback
+  };
 
   const platformIcons = {
     binance: '🟡',
@@ -58,11 +67,8 @@ function PlatformSettings({ platform, isSelected, onClick }) {
       defaultLeverage: platform.settings?.futuresConfig?.defaultLeverage || 10,
       defaultTakeProfitPercent: platform.settings?.futuresConfig?.defaultTakeProfitPercent || 5,
       defaultStopLossPercent: platform.settings?.futuresConfig?.defaultStopLossPercent || 3,
-      defaultPositionSize: platform.settings?.futuresConfig?.defaultPositionSize || 100,
-      defaultSymbol: platform.settings?.futuresConfig?.defaultSymbol || 'BTCUSDT',
-      defaultOrderType: platform.settings?.futuresConfig?.defaultOrderType || 'MARKET',
+      defaultPositionSizePercent: platform.settings?.futuresConfig?.defaultPositionSizePercent || 50,
       autoTpSl: platform.settings?.futuresConfig?.autoTpSl || false,
-      confirmBeforePlacing: platform.settings?.futuresConfig?.confirmBeforePlacing !== false,
     });
     setIsEditing(false);
   };
@@ -83,7 +89,15 @@ function PlatformSettings({ platform, isSelected, onClick }) {
       <div className="p-6 border-b border-slate-700/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="text-4xl">{platformIcons[platform.platform] || '⚪'}</div>
+            {platformLogos[platform.platform] ? (
+              <img
+                src={platformLogos[platform.platform]}
+                alt={`${platform.platform} logo`}
+                className="w-12 h-12 object-contain rounded-md"
+              />
+            ) : (
+              <div className="text-4xl">{platformIcons[platform.platform] || '⚪'}</div>
+            )}
             <div>
               <h3 className="text-xl font-bold text-white">{platform.name}</h3>
               <div className="flex items-center gap-2 mt-1">
@@ -125,78 +139,44 @@ function PlatformSettings({ platform, isSelected, onClick }) {
             Trading Defaults
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Default Symbol */}
-            <div>
+            {/* Default Position Size Percent */}
+            <div className="flex flex-col justify-between">
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Default Symbol
+                Default Position Size (% of Capital)
               </label>
               {isEditing ? (
-                <input
-                  type="text"
-                  value={settings.defaultSymbol}
-                  onChange={(e) =>
-                    setSettings({ ...settings, defaultSymbol: e.target.value })
-                  }
-                  className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              ) : (
-                <div className="px-3 py-2 bg-slate-900/30 rounded-lg text-white">
-                  {settings.defaultSymbol}
+                <div>
+                  <input
+                    type="range"
+                    value={settings.defaultPositionSizePercent}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        defaultPositionSizePercent: parseInt(e.target.value),
+                      })
+                    }
+                    min="1"
+                    max="100"
+                    step="1"
+                    className="w-full h-2 bg-slate-900/50 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                  />
+                  <div className="flex justify-between mt-1">
+                    <span className="text-xs text-gray-500">1%</span>
+                    <span className="text-sm text-blue-400 font-semibold">
+                      {settings.defaultPositionSizePercent}%
+                    </span>
+                    <span className="text-xs text-gray-500">100%</span>
+                  </div>
                 </div>
-              )}
-            </div>
-
-            {/* Default Order Type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Default Order Type
-              </label>
-              {isEditing ? (
-                <select
-                  value={settings.defaultOrderType}
-                  onChange={(e) =>
-                    setSettings({ ...settings, defaultOrderType: e.target.value })
-                  }
-                  className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                >
-                  <option value="MARKET">Market</option>
-                  <option value="LIMIT">Limit</option>
-                </select>
               ) : (
-                <div className="px-3 py-2 bg-slate-900/30 rounded-lg text-white capitalize">
-                  {settings.defaultOrderType}
-                </div>
-              )}
-            </div>
-
-            {/* Default Position Size */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Default Position Size (USDT)
-              </label>
-              {isEditing ? (
-                <input
-                  type="number"
-                  value={settings.defaultPositionSize}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      defaultPositionSize: parseFloat(e.target.value),
-                    })
-                  }
-                  min="1"
-                  step="1"
-                  className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              ) : (
-                <div className="px-3 py-2 bg-slate-900/30 rounded-lg text-white">
-                  ${settings.defaultPositionSize}
+                <div className="px-3 py-2 bg-blue-900/30 border border-blue-700/50 rounded-lg text-blue-400">
+                  {settings.defaultPositionSizePercent}% of capital
                 </div>
               )}
             </div>
 
             {/* Default Leverage */}
-            <div>
+            <div className="flex flex-col justify-between">
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Default Leverage
               </label>
@@ -225,7 +205,7 @@ function PlatformSettings({ platform, isSelected, onClick }) {
                   </div>
                 </div>
               ) : (
-                <div className="px-3 py-2 bg-slate-900/30 rounded-lg text-white">
+                <div className="px-3 py-2 bg-purple-900/30 border border-purple-700/50 rounded-lg text-purple-400">
                   {settings.defaultLeverage}x
                 </div>
               )}
@@ -314,28 +294,6 @@ function PlatformSettings({ platform, isSelected, onClick }) {
                 checked={settings.autoTpSl}
                 onChange={(e) =>
                   setSettings({ ...settings, autoTpSl: e.target.checked })
-                }
-                disabled={!isEditing}
-                className="w-5 h-5 rounded border-slate-600 bg-slate-900/50 text-purple-500 focus:ring-purple-500 disabled:opacity-50"
-              />
-            </label>
-
-            {/* Confirm Before Placing */}
-            <label className="flex items-center justify-between p-3 bg-slate-900/30 rounded-lg cursor-pointer hover:bg-slate-900/50 transition-colors">
-              <div>
-                <div className="text-white font-medium">Confirm Before Placing</div>
-                <div className="text-sm text-gray-400">
-                  Show confirmation dialog before placing orders
-                </div>
-              </div>
-              <input
-                type="checkbox"
-                checked={settings.confirmBeforePlacing}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    confirmBeforePlacing: e.target.checked,
-                  })
                 }
                 disabled={!isEditing}
                 className="w-5 h-5 rounded border-slate-600 bg-slate-900/50 text-purple-500 focus:ring-purple-500 disabled:opacity-50"

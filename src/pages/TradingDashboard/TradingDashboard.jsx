@@ -2,7 +2,6 @@ import { useState } from 'react';
 import BackgroundEffect from '../../components/BackgroundEffect';
 import Navigation from '../../components/Navigation/Navigation';
 import {
-  OrderPlacementForm,
   ActiveOrdersList,
   OrderHistory,
   TradingStats
@@ -13,16 +12,10 @@ import {
  * Manages order placement, monitoring, and history
  */
 function TradingDashboard() {
-  const [activeTab, setActiveTab] = useState('place-order');
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  const handleOrderPlaced = () => {
-    setRefreshTrigger(prev => prev + 1);
-    setActiveTab('active-orders');
-  };
+  const [activeTab, setActiveTab] = useState('active-orders');
+  const [refreshTrigger, _] = useState(0);
 
   const tabs = [
-    { id: 'place-order', label: 'Place Order', icon: '📊' },
     { id: 'active-orders', label: 'Active Orders', icon: '⚡' },
     { id: 'history', label: 'History', icon: '📜' }
   ];
@@ -80,9 +73,6 @@ function TradingDashboard() {
 
           {/* Tab Content */}
           <div className="animate-fadeIn">
-            {activeTab === 'place-order' && (
-              <OrderPlacementForm onOrderPlaced={handleOrderPlaced} />
-            )}
             {activeTab === 'active-orders' && (
               <ActiveOrdersList refreshTrigger={refreshTrigger} />
             )}

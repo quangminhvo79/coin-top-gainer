@@ -1,5 +1,9 @@
-import { IsNumber, IsBoolean, IsOptional, IsString, Min, Max } from 'class-validator';
+import { IsNumber, IsBoolean, IsOptional, Min, Max } from 'class-validator';
 
+/**
+ * DTO for updating futures trading settings in TradingPlatform.settings.futuresConfig
+ * This corresponds to the futuresConfig object in TradingPlatform entity
+ */
 export class UpdateFuturesSettingsDto {
   @IsOptional()
   @IsNumber()
@@ -20,23 +24,12 @@ export class UpdateFuturesSettingsDto {
   defaultStopLossPercent?: number;
 
   @IsOptional()
-  @IsBoolean()
-  autoTpSl?: boolean;
-
-  @IsOptional()
   @IsNumber()
   @Min(1)
-  defaultPositionSize?: number;
-
-  @IsOptional()
-  @IsString()
-  defaultSymbol?: string;
-
-  @IsOptional()
-  @IsString()
-  defaultOrderType?: string; // MARKET, LIMIT
+  @Max(100)
+  defaultPositionSizePercent?: number; // % of total capital to use per position (1-100%)
 
   @IsOptional()
   @IsBoolean()
-  confirmBeforePlacing?: boolean;
+  autoTpSl?: boolean;
 }

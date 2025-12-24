@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { openTradingPlatform } from '../../utils';
 import ChartCardPresentation from './ChartCardPresentation';
 
@@ -7,15 +7,22 @@ import ChartCardPresentation from './ChartCardPresentation';
  * Manages trade logic and passes handlers to presentational component
  */
 function ChartCardContainer({ coin, index }) {
+  const [openChart, setOpenChart] = useState(false);
   const handleTrade = useCallback(() => {
     openTradingPlatform(coin.symbol);
   }, [coin.symbol]);
+
+  const toggleChart = useCallback(() => {
+    setOpenChart(prev => !prev);
+  }, []);
 
   return (
     <ChartCardPresentation
       coin={coin}
       index={index}
       onTrade={handleTrade}
+      openChart={openChart}
+      toggleChart={toggleChart}
     />
   );
 }

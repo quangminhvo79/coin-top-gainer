@@ -49,13 +49,13 @@ export class TradingPlatform {
 
   @Column({ type: 'jsonb', nullable: true })
   settings: {
-    baseUrl?: string;
     permissions?: string[];
     rateLimits?: Record<string, number>;
     futuresConfig?: {
       defaultLeverage?: number;
       defaultTakeProfitPercent?: number;
       defaultStopLossPercent?: number;
+      defaultPositionSizePercent?: number; // % of total capital to use per position
       autoTpSl?: boolean;
     };
   };

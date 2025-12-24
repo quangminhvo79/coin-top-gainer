@@ -7,7 +7,8 @@ import { CoinCardContainer } from '../CoinCard';
 import { LoadingSkeletonPresentation } from '../LoadingSkeleton';
 import { FooterPresentation } from '../Footer';
 import { PeriodTabsContainer } from '../PeriodTabs';
-
+import { EventTypeTabsContainer } from '../EventTypeTabs';
+import { SUPPORTED_EVENT_TYPES } from '../../services/binanceApi';
 /**
  * Main App Container
  * Manages application state and orchestrates data flow
@@ -24,7 +25,9 @@ function AppContainer() {
     fetchTopGainers,
     selectedPeriod,
     setSelectedPeriod,
-    availablePeriods
+    selectedEventType,
+    setSelectedEventType,
+    availablePeriods,
   } = useTopGainers(autoRefresh);
 
   // Initial data fetch (React Query handles this automatically, but kept for manual refresh)
@@ -93,6 +96,13 @@ function AppContainer() {
                   periods={availablePeriods}
                   selectedPeriod={selectedPeriod}
                   onPeriodChange={setSelectedPeriod}
+                />
+              )}
+              {SUPPORTED_EVENT_TYPES.length > 1 && (
+                <EventTypeTabsContainer
+                  periods={SUPPORTED_EVENT_TYPES}
+                  selectedPeriod={selectedEventType}
+                  onPeriodChange={setSelectedEventType}
                 />
               )}
 

@@ -13,10 +13,11 @@ export const TOP_GAINERS_QUERY_KEY = ['topGainers'];
  */
 export const useTopGainers = (enableAutoRefresh = true) => {
   const [selectedPeriod, setSelectedPeriod] = useState(null);
+  const [selectedEventType, setSelectedEventType] = useState(null);
 
   // Fetch all top gainers data with React Query
   const {
-    data,
+    data: { coins = [], periods = [], stats = {}, eventTypes = [] } = {},
     isLoading,
     isFetching,
     error,
@@ -30,26 +31,43 @@ export const useTopGainers = (enableAutoRefresh = true) => {
   });
 
   // Initialize selectedPeriod when data loads
-  const availablePeriods = data?.periods || [];
+  const availablePeriods = periods || [];
   if (!selectedPeriod && availablePeriods.length > 0) {
     setSelectedPeriod(availablePeriods[0]);
   }
 
   // Client-side filtering by selected period
   const filteredCoins = useMemo(() => {
-    if (!data?.coins) return [];
-    if (!selectedPeriod) return data.coins;
+    if (!coins) return [];
+    if (!selectedPeriod) return coins;
 
-    return data.coins.filter(coin => coin.period === selectedPeriod);
-  }, [data?.coins, selectedPeriod]);
+    return coins.filter(coin => {
+      if (!selectedEventType) return coin.period === selectedPeriod;
+      if ("NEW_HIGH" == selectedEventType) {
+        return coin.period === selectedPeriod &&
+          coin.eventType === "DAY_UP_BREAKTHROUGH" &&
+          coin.noticeType === "PRICE_BREAKTHROUGH"
+      }
+      if ("NEW_LOW" == selectedEventType) {
+        return coin.period === selectedPeriod &&
+          coin.eventType === "DAY_DOWN_BREAKTHROUGH" &&
+          coin.noticeType === "PRICE_BREAKTHROUGH"
+      }
+      if ("RISE" == selectedEventType || "FALL" == selectedEventType) {
+        return coin.period === selectedPeriod
+      }
+
+      return coin.eventType === selectedEventType && coin.period === selectedPeriod;
+    });
+  }, [coins, selectedPeriod, selectedEventType]);
 
   return {
     coins: filteredCoins,
-    allCoins: data?.coins || [],
+    allCoins: coins || [],
     loading: isLoading, // Only true on initial load
     isFetching, // True during background refetches
     error,
-    stats: data?.stats || {
+    stats: stats || {
       totalVolume: 0,
       avgGain: 0,
       topGainer: null
@@ -57,6 +75,9 @@ export const useTopGainers = (enableAutoRefresh = true) => {
     fetchTopGainers: refetch, // Expose refetch as fetchTopGainers for backward compatibility
     selectedPeriod,
     setSelectedPeriod,
-    availablePeriods
+    availablePeriods,
+    eventTypes,
+    selectedEventType,
+    setSelectedEventType
   };
 };
