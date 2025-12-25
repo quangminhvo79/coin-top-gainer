@@ -10,6 +10,7 @@ import './index.css'
 import App from './components/App'
 import TradingDashboard from './pages/TradingDashboard/TradingDashboard'
 import Login from './pages/Login/Login'
+import Register from './pages/Register/Register'
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword'
 import ResetPassword from './pages/ResetPassword/ResetPassword'
 import Settings from './pages/Settings/Settings'
@@ -28,6 +29,14 @@ createRoot(document.getElementById('root')).render(
               element={
                 <PublicRoute>
                   <Login />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <PublicRoute>
+                  <Register />
                 </PublicRoute>
               }
             />
