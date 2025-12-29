@@ -7,7 +7,6 @@ import {
   TradingStats,
   LiveBinanceOrders
 } from './components';
-import ccxt from 'ccxt';
 /**
  * Trading Dashboard - Main trading interface
  * Manages order placement, monitoring, and history
