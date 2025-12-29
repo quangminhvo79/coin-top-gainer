@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { FuturesOrder, OrderStatus } from '../../entities/futures-order.entity';
-import { TradingPlatform } from '../../entities/trading-platform.entity';
+import { FuturesOrder, OrderStatus } from '../../../entities/futures-order.entity';
+import { TradingPlatform } from '../../../entities/trading-platform.entity';
 import { BinanceFuturesService } from './binance-futures.service';
 
 @Injectable()
@@ -18,7 +18,9 @@ export class OrderMonitorService {
     private binanceService: BinanceFuturesService,
   ) {}
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  // DISABLED: Auto-monitoring disabled to reduce database load
+  // To enable, uncomment the @Cron decorator below
+  // @Cron(CronExpression.EVERY_MINUTE)
   async monitorActiveOrders() {
     const activeOrders = await this.ordersRepository.find({
       where: {
@@ -28,6 +30,7 @@ export class OrderMonitorService {
     });
 
     if (activeOrders.length === 0) {
+      this.logger.debug('No active orders to monitor');
       return;
     }
 

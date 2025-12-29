@@ -9,10 +9,10 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { TokenBookmarkService } from './token-bookmark.service';
-import { CreateBookmarkDto } from './dto/create-bookmark.dto';
-import { UpdateBookmarkDto } from './dto/update-bookmark.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { TokenBookmarkService } from '../services/token-bookmark.service';
+import { CreateBookmarkDto } from '../dto/create-bookmark.dto';
+import { UpdateBookmarkDto } from '../dto/update-bookmark.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @Controller('bookmarks')
 @UseGuards(JwtAuthGuard)

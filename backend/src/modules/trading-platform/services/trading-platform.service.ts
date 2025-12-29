@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { TradingPlatform } from '../../entities/trading-platform.entity';
-import { CreatePlatformDto } from './dto/create-platform.dto';
-import { UpdatePlatformDto } from './dto/update-platform.dto';
-import { UpdateFuturesSettingsDto } from '../futures-trading/dto/update-futures-settings.dto';
+import { TradingPlatform } from '../../../entities/trading-platform.entity';
+import { CreatePlatformDto } from '../dto/create-platform.dto';
+import { UpdatePlatformDto } from '../dto/update-platform.dto';
+import { UpdateFuturesSettingsDto } from '../../futures-trading/dto/update-futures-settings.dto';
 
 @Injectable()
 export class TradingPlatformService {

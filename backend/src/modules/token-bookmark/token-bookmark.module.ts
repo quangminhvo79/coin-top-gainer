@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TokenBookmarkController } from './token-bookmark.controller';
-import { TokenBookmarkService } from './token-bookmark.service';
+import { TokenBookmarkController } from './controllers/token-bookmark.controller';
+import { TokenBookmarkService } from './services/token-bookmark.service';
 import { TokenBookmark } from '../../entities/token-bookmark.entity';
 
 @Module({

@@ -9,12 +9,12 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { FuturesTradingService } from './futures-trading.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { OrderQueryDto } from './dto/order-query.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { FuturesTradingService } from '../services/futures-trading.service';
+import { CreateOrderDto } from '../dto/create-order.dto';
+import { OrderQueryDto } from '../dto/order-query.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
-@Controller('api/v1/futures')
+@Controller('futures')
 @UseGuards(JwtAuthGuard)
 export class FuturesTradingController {
   constructor(private readonly futuresService: FuturesTradingService) {}
@@ -42,5 +42,16 @@ export class FuturesTradingController {
   async cancelOrder(@Request() req, @Param('id') id: string) {
     await this.futuresService.cancelOrder(id, req.user.userId);
     return { message: 'Order cancelled successfully' };
+  }
+
+  @Get('sync-orders')
+  async syncOrdersFromBinance(
+    @Request() req,
+    @Query('platformId') platformId: string,
+  ) {
+    return this.futuresService.syncOrdersFromBinance(
+      req.user.userId,
+      platformId,
+    );
   }
 }

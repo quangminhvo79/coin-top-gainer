@@ -74,7 +74,7 @@ export class AccountService {
     const total = Number(updateBalanceDto.free) + Number(updateBalanceDto.locked);
     const usdValue = updateBalanceDto.priceUsd
       ? total * updateBalanceDto.priceUsd
-      : null;
+      : undefined;
 
     if (balance) {
       Object.assign(balance, {

@@ -18,8 +18,8 @@ export const queryClient = new QueryClient({
       retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
 
       // Refetch strategies
-      refetchOnWindowFocus: true,  // Fresh data when user returns to tab
-      refetchOnReconnect: true,    // Refetch when connection restored
+      refetchOnWindowFocus: false,  // Fresh data when user returns to tab
+      refetchOnReconnect: false,    // Refetch when connection restored
       refetchOnMount: false,        // Skip refetch if data is fresh
     },
   },

@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { TokenBookmark } from '../../entities/token-bookmark.entity';
-import { CreateBookmarkDto } from './dto/create-bookmark.dto';
-import { UpdateBookmarkDto } from './dto/update-bookmark.dto';
+import { TokenBookmark } from '../../../entities/token-bookmark.entity';
+import { CreateBookmarkDto } from '../dto/create-bookmark.dto';
+import { UpdateBookmarkDto } from '../dto/update-bookmark.dto';
 
 @Injectable()
 export class TokenBookmarkService {

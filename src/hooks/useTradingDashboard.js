@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import apiClient from '../utils/apiClient';
+import { fetchAPI } from '../utils/apiClient';
 
 /**
  * Query Keys
@@ -12,38 +12,35 @@ export const TRADING_KEYS = {
 };
 
 /**
- * API Helper Function
- * Uses apiClient with automatic token refresh
- */
-const fetchAPI = async (endpoint, options = {}) => {
-  const response = await apiClient(endpoint, options);
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Request failed' }));
-    throw new Error(error.message || `HTTP ${response.status}`);
-  }
-
-  return response.json();
-};
-
-/**
  * Hook: Fetch Trading Platforms
  */
 export const useTradingPlatforms = () => {
   return useQuery({
     queryKey: TRADING_KEYS.platforms,
-    queryFn: () => fetchAPI('/api/v1/platforms'),
+    queryFn: () => {
+      console.log('[useTradingPlatforms] Fetching platforms...');
+      return fetchAPI('/api/v1/platforms');
+    },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 };
 
 /**
  * Hook: Fetch Active Orders
+ * Fetches orders with PENDING or PARTIALLY_FILLED status
  */
 export const useActiveOrders = (refreshTrigger = 0) => {
   return useQuery({
     queryKey: [...TRADING_KEYS.activeOrders, refreshTrigger],
-    queryFn: () => fetchAPI('/api/v1/futures/orders?status=ACTIVE,PENDING'),
+    queryFn: () => {
+      console.log('[useActiveOrders] Fetching active orders...');
+      return fetchAPI('/api/v1/futures/orders?status=PENDING,PARTIALLY_FILLED');
+    },
+    refetchOnWindowFocus: false, // Don't auto-refetch when window gains focus
+    staleTime: 5 * 60 * 1000, // 5 minutes - data stays fresh longer
+    refetchOnMount: false, // Don't refetch when component mounts if data is fresh
     // refetchInterval: 10000, // Auto-refresh every 10 seconds
   });
 };
@@ -54,8 +51,13 @@ export const useActiveOrders = (refreshTrigger = 0) => {
 export const useOrderHistory = (refreshTrigger = 0) => {
   return useQuery({
     queryKey: [...TRADING_KEYS.orderHistory, refreshTrigger],
-    queryFn: () => fetchAPI('/api/v1/futures/orders'),
-    staleTime: 30000, // 30 seconds
+    queryFn: () => {
+      console.log('[useOrderHistory] Fetching order history...');
+      return fetchAPI('/api/v1/futures/orders');
+    },
+    refetchOnWindowFocus: false, // Don't auto-refetch when window gains focus
+    staleTime: 5 * 60 * 1000, // 5 minutes - data stays fresh longer
+    refetchOnMount: false, // Don't refetch when component mounts if data is fresh
   });
 };
 
@@ -106,5 +108,20 @@ export const useCancelOrder = () => {
       queryClient.invalidateQueries({ queryKey: TRADING_KEYS.activeOrders });
       queryClient.invalidateQueries({ queryKey: TRADING_KEYS.orderHistory });
     },
+  });
+};
+
+/**
+ * Hook: Sync Orders from Binance
+ * Fetches all open orders from Binance exchange
+ * NOTE: This is READ-ONLY, doesn't modify database, so no need to invalidate queries
+ */
+export const useSyncBinanceOrders = () => {
+  return useMutation({
+    mutationFn: (platformId) => {
+      console.log('[useSyncBinanceOrders] Syncing from Binance...');
+      return fetchAPI(`/api/v1/futures/sync-orders?platformId=${platformId}`);
+    },
+    // Don't invalidate queries - this is just reading from Binance, not modifying database
   });
 };

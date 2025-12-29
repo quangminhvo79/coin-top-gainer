@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { OrderSide } from '../../entities/futures-order.entity';
+import { OrderSide } from '../../../entities/futures-order.entity';
 
 export interface CalculationParams {
   currentPrice: number;

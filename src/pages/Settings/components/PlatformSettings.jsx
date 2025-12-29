@@ -16,6 +16,11 @@ function PlatformSettings({ platform, isSelected, onClick }) {
     defaultPositionSizePercent: platform.settings?.futuresConfig?.defaultPositionSizePercent || 50,
     autoTpSl: platform.settings?.futuresConfig?.autoTpSl || false,
   });
+  const [credentials, setCredentials] = useState({
+    apiKey: '',
+    apiSecret: '',
+    passphrase: '',
+  });
 
   const platformLogos = {
     binance: binanceLogo,
@@ -38,7 +43,8 @@ function PlatformSettings({ platform, isSelected, onClick }) {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const response = await apiClient(
+      // Update futures settings
+      const futuresResponse = await apiClient(
         `/api/v1/platforms/${platform.id}/futures-settings`,
         {
           method: 'PUT',
@@ -46,16 +52,38 @@ function PlatformSettings({ platform, isSelected, onClick }) {
         }
       );
 
-      if (!response.ok) {
-        throw new Error('Failed to update settings');
+      if (!futuresResponse.ok) {
+        throw new Error('Failed to update futures settings');
+      }
+
+      // Update API credentials if provided
+      if (credentials.apiKey || credentials.apiSecret || credentials.passphrase) {
+        const credentialsPayload = {};
+        if (credentials.apiKey) credentialsPayload.apiKey = credentials.apiKey;
+        if (credentials.apiSecret) credentialsPayload.apiSecret = credentials.apiSecret;
+        if (credentials.passphrase) credentialsPayload.passphrase = credentials.passphrase;
+
+        const credentialsResponse = await apiClient(
+          `/api/v1/platforms/${platform.id}`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(credentialsPayload),
+          }
+        );
+
+        if (!credentialsResponse.ok) {
+          throw new Error('Failed to update API credentials');
+        }
       }
 
       setIsEditing(false);
+      // Clear credential fields after save
+      setCredentials({ apiKey: '', apiSecret: '', passphrase: '' });
       // Optionally trigger a refetch of platforms
       window.location.reload();
     } catch (error) {
       console.error('Error saving settings:', error);
-      alert('Failed to save settings');
+      alert('Failed to save settings: ' + error.message);
     } finally {
       setIsSaving(false);
     }
@@ -70,6 +98,7 @@ function PlatformSettings({ platform, isSelected, onClick }) {
       defaultPositionSizePercent: platform.settings?.futuresConfig?.defaultPositionSizePercent || 50,
       autoTpSl: platform.settings?.futuresConfig?.autoTpSl || false,
     });
+    setCredentials({ apiKey: '', apiSecret: '', passphrase: '' });
     setIsEditing(false);
   };
 
@@ -133,6 +162,109 @@ function PlatformSettings({ platform, isSelected, onClick }) {
 
       {/* Settings Content */}
       <div className="p-6 space-y-6">
+        {/* API Credentials */}
+        <div>
+          <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+            API Credentials
+          </h4>
+          <div className="space-y-4">
+            {/* API Key */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                API Key
+              </label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={credentials.apiKey}
+                  onChange={(e) =>
+                    setCredentials({
+                      ...credentials,
+                      apiKey: e.target.value,
+                    })
+                  }
+                  placeholder="Enter new API key to update"
+                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-sm"
+                />
+              ) : (
+                <div className="px-4 py-3 bg-slate-900/30 border border-slate-700/50 rounded-lg text-gray-500 font-mono text-sm">
+                  {platform.apiKey ? '••••••••••••••••' : 'Not configured'}
+                </div>
+              )}
+            </div>
+
+            {/* API Secret */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                API Secret
+              </label>
+              {isEditing ? (
+                <input
+                  type="password"
+                  value={credentials.apiSecret}
+                  onChange={(e) =>
+                    setCredentials({
+                      ...credentials,
+                      apiSecret: e.target.value,
+                    })
+                  }
+                  placeholder="Enter new API secret to update"
+                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-sm"
+                />
+              ) : (
+                <div className="px-4 py-3 bg-slate-900/30 border border-slate-700/50 rounded-lg text-gray-500 font-mono text-sm">
+                  {platform.apiSecret ? '••••••••••••••••' : 'Not configured'}
+                </div>
+              )}
+            </div>
+
+            {/* Passphrase (Optional for OKX, Coinbase) */}
+            {(platform.platform === 'okx' || platform.platform === 'coinbase') && (
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Passphrase
+                  <span className="text-gray-500 text-xs ml-2">(Optional)</span>
+                </label>
+                {isEditing ? (
+                  <input
+                    type="password"
+                    value={credentials.passphrase}
+                    onChange={(e) =>
+                      setCredentials({
+                        ...credentials,
+                        passphrase: e.target.value,
+                      })
+                    }
+                    placeholder="Enter passphrase if required"
+                    className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-sm"
+                  />
+                ) : (
+                  <div className="px-4 py-3 bg-slate-900/30 border border-slate-700/50 rounded-lg text-gray-500 font-mono text-sm">
+                    {platform.passphrase ? '••••••••••••••••' : 'Not configured'}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Security Notice */}
+            {isEditing && (
+              <div className="p-3 bg-yellow-500/10 border border-yellow-500/50 rounded-lg">
+                <div className="flex gap-2">
+                  <svg className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <div className="text-sm text-yellow-400">
+                    <p className="font-semibold mb-1">Security Notice</p>
+                    <p className="text-yellow-400/80">
+                      Leave fields empty to keep existing credentials. Only fill in fields you want to update.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Trading Defaults */}
         <div>
           <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">

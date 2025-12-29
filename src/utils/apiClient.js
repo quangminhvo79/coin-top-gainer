@@ -48,4 +48,20 @@ async function apiClient(url, options = {}) {
   return response;
 }
 
+
+/**
+ * API Helper Function
+ * Uses apiClient with automatic token refresh
+ */
+export const fetchAPI = async (endpoint, options = {}) => {
+  const response = await apiClient(endpoint, options);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Request failed' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+};
+
 export default apiClient;

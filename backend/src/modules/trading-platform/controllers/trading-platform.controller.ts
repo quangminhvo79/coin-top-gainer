@@ -9,11 +9,11 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { TradingPlatformService } from './trading-platform.service';
-import { CreatePlatformDto } from './dto/create-platform.dto';
-import { UpdatePlatformDto } from './dto/update-platform.dto';
-import { UpdateFuturesSettingsDto } from '../futures-trading/dto/update-futures-settings.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { TradingPlatformService } from '../services/trading-platform.service';
+import { CreatePlatformDto } from '../dto/create-platform.dto';
+import { UpdatePlatformDto } from '../dto/update-platform.dto';
+import { UpdateFuturesSettingsDto } from '../../futures-trading/dto/update-futures-settings.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @Controller('platforms')
 @UseGuards(JwtAuthGuard)

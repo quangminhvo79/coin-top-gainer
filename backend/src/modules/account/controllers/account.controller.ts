@@ -9,11 +9,11 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { AccountService } from './account.service';
-import { CreateAccountDto } from './dto/create-account.dto';
-import { UpdateAccountDto } from './dto/update-account.dto';
-import { UpdateBalanceDto } from './dto/update-balance.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AccountService } from '../services/account.service';
+import { CreateAccountDto } from '../dto/create-account.dto';
+import { UpdateAccountDto } from '../dto/update-account.dto';
+import { UpdateBalanceDto } from '../dto/update-balance.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @Controller('accounts')
 @UseGuards(JwtAuthGuard)

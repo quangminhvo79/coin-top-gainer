@@ -9,10 +9,10 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { PnlService } from './pnl.service';
-import { CreatePnlDto } from './dto/create-pnl.dto';
-import { PnlQueryDto } from './dto/pnl-query.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PnlService } from '../services/pnl.service';
+import { CreatePnlDto } from '../dto/create-pnl.dto';
+import { PnlQueryDto } from '../dto/pnl-query.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @Controller('pnl')
 @UseGuards(JwtAuthGuard)

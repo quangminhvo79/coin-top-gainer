@@ -7,12 +7,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { FuturesOrder, OrderStatus, PositionSide } from '../../entities/futures-order.entity';
-import { TradingPlatform } from '../../entities/trading-platform.entity';
-import { Account } from '../../entities/account.entity';
+import { FuturesOrder, OrderSide, OrderStatus, PositionSide } from '../../../entities/futures-order.entity';
+import { TradingPlatform } from '../../../entities/trading-platform.entity';
+import { Account } from '../../../entities/account.entity';
 import { BinanceFuturesService } from './binance-futures.service';
 import { OrderCalculatorService } from './order-calculator.service';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { CreateOrderDto } from '../dto/create-order.dto';
 
 @Injectable()
 export class FuturesTradingService {
@@ -161,7 +161,7 @@ export class FuturesTradingService {
       // Place Take Profit order (TAKE_PROFIT_MARKET)
       const tpResponse = await this.binanceService.placeOrder(platform, {
         symbol: order.symbol,
-        side: order.side === 'BUY' ? 'SELL' : 'BUY', // Opposite side
+        side: order.side === OrderSide.BUY ? OrderSide.SELL : OrderSide.BUY, // Opposite side
         type: 'TAKE_PROFIT_MARKET',
         positionSide: order.positionSide,
         quantity: order.quantity.toString(),
@@ -185,7 +185,7 @@ export class FuturesTradingService {
       // Place Stop Loss order (STOP_MARKET)
       const slResponse = await this.binanceService.placeOrder(platform, {
         symbol: order.symbol,
-        side: order.side === 'BUY' ? 'SELL' : 'BUY', // Opposite side
+        side: order.side === OrderSide.BUY ? OrderSide.SELL : OrderSide.BUY, // Opposite side
         type: 'STOP_MARKET',
         positionSide: order.positionSide,
         quantity: order.quantity.toString(),
@@ -209,14 +209,15 @@ export class FuturesTradingService {
   async getOrders(
     userId: string,
     platformId?: string,
-    status?: OrderStatus,
+    status?: OrderStatus | OrderStatus[],
   ): Promise<FuturesOrder[]> {
     const where: any = { userId };
     if (platformId) {
       where.tradingPlatformId = platformId;
     }
     if (status) {
-      where.status = status;
+      // Handle both single status and array of statuses
+      where.status = Array.isArray(status) ? In(status) : status;
     }
 
     return this.ordersRepository.find({
@@ -245,8 +246,12 @@ export class FuturesTradingService {
       where: { id: order.tradingPlatformId },
     });
 
+    if (!platform) {
+      throw new NotFoundException('Trading platform not found');
+    }
+
     // Cancel all related orders
-    const cancelPromises = [];
+    const cancelPromises: Promise<any>[] = [];
 
     if (order.mainOrderId) {
       cancelPromises.push(
@@ -276,6 +281,62 @@ export class FuturesTradingService {
       status: OrderStatus.CANCELLED,
       closedAt: new Date(),
     });
+  }
+
+  /**
+   * Sync orders from Binance to local database
+   * Fetches all open orders from Binance and returns them
+   */
+  async syncOrdersFromBinance(
+    userId: string,
+    platformId: string,
+  ): Promise<{
+    openOrders: any[];
+    summary: {
+      total: number;
+      bySymbol: Record<string, number>;
+      byStatus: Record<string, number>;
+    };
+  }> {
+    // 1. Validate platform ownership
+    const platform = await this.platformRepository.findOne({
+      where: { id: platformId, userId },
+    });
+
+    if (!platform) {
+      throw new NotFoundException('Trading platform not found');
+    }
+
+    // 2. Fetch open orders from Binance
+    const binanceOrders = await this.binanceService.getCurrentOpenOrders(
+      platform,
+    );
+
+    // 3. Generate summary
+    const summary = {
+      total: binanceOrders.length,
+      bySymbol: {} as Record<string, number>,
+      byStatus: {} as Record<string, number>,
+    };
+
+    binanceOrders.forEach((order) => {
+      // Count by symbol
+      if (order.symbol) {
+        summary.bySymbol[order.symbol] =
+          (summary.bySymbol[order.symbol] || 0) + 1;
+      }
+
+      // Count by status
+      if (order.status) {
+        summary.byStatus[order.status] =
+          (summary.byStatus[order.status] || 0) + 1;
+      }
+    });
+
+    return {
+      openOrders: binanceOrders,
+      summary,
+    };
   }
 
   // Webhook handler for order status updates

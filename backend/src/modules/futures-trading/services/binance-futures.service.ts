@@ -1,7 +1,7 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { DerivativesTradingUsdsFutures } from '@binance/derivatives-trading-usds-futures';
-import { TradingPlatform } from '../../entities/trading-platform.entity';
-import { OrderSide, PositionSide } from '../../entities/futures-order.entity';
+import { TradingPlatform } from '../../../entities/trading-platform.entity';
+import { OrderSide, PositionSide } from '../../../entities/futures-order.entity';
 
 export interface BinanceOrderParams {
   symbol: string;
@@ -26,9 +26,9 @@ export class BinanceFuturesService {
       apiSecret: platform.apiSecret,
     };
 
-    if (platform.isTestnet) {
-      configurationRestAPI.baseURL = 'https://testnet.binancefuture.com';
-    }
+    // if (platform.isTestnet) {
+    //   configurationRestAPI.baseURL = 'https://testnet.binancefuture.com';
+    // }
 
     return new DerivativesTradingUsdsFutures({ configurationRestAPI });
   }
@@ -66,8 +66,8 @@ export class BinanceFuturesService {
       const response = await client.restAPI.symbolPriceTicker({ symbol });
       const data = await response.data();
 
-      this.logger.log(`Current price for ${symbol}: ${data.price}`);
-      return parseFloat(data.price);
+      this.logger.log(`Current price for ${symbol}: ${(data as any).price}`);
+      return parseFloat((data as any).price);
     } catch (error) {
       this.logger.error(`Failed to get current price: ${error.message}`);
       throw new HttpException(
@@ -80,7 +80,7 @@ export class BinanceFuturesService {
   async getAccountBalance(platform: TradingPlatform): Promise<any> {
     try {
       const client = this.createClient(platform);
-      const response = await client.restAPI.futuresAccountBalance();
+      const response = await client.restAPI.futuresAccountBalanceV2();
       const data = await response.data();
 
       this.logger.log(`Account balance retrieved: ${data.length} assets`);
@@ -191,6 +191,36 @@ export class BinanceFuturesService {
       this.logger.error(`Failed to query order status: ${error.message}`);
       throw new HttpException(
         error.message || 'Failed to query order status',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  /**
+   * Get all current open orders from Binance
+   * @param platform Trading platform with API credentials
+   * @param symbol Optional symbol filter (e.g., 'BTCUSDT')
+   * @returns Array of open orders from Binance
+   */
+  async getCurrentOpenOrders(
+    platform: TradingPlatform,
+    symbol?: string,
+  ): Promise<any[]> {
+    try {
+      const client = this.createClient(platform);
+      const response = await client.restAPI.currentAllOpenOrders({
+        symbol: symbol || undefined,
+      });
+      const data = await response.data();
+
+      console.log('Binance open orders data', data);
+
+      // this.logger.log(`Retrieved ${data.length} open orders${symbol ? ` for ${symbol}` : ''}`);
+      return data;
+    } catch (error) {
+      this.logger.error(`Failed to get open orders: ${error.message}`);
+      throw new HttpException(
+        error.message || 'Failed to get open orders',
         HttpStatus.BAD_REQUEST,
       );
     }

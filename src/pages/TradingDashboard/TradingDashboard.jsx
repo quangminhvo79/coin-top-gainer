@@ -4,9 +4,10 @@ import Navigation from '../../components/Navigation/Navigation';
 import {
   ActiveOrdersList,
   OrderHistory,
-  TradingStats
+  TradingStats,
+  LiveBinanceOrders
 } from './components';
-
+import ccxt from 'ccxt';
 /**
  * Trading Dashboard - Main trading interface
  * Manages order placement, monitoring, and history
@@ -17,6 +18,7 @@ function TradingDashboard() {
 
   const tabs = [
     { id: 'active-orders', label: 'Active Orders', icon: '⚡' },
+    { id: 'live-binance', label: 'Live Binance', icon: '📊' },
     { id: 'history', label: 'History', icon: '📜' }
   ];
 
@@ -75,6 +77,9 @@ function TradingDashboard() {
           <div className="animate-fadeIn">
             {activeTab === 'active-orders' && (
               <ActiveOrdersList refreshTrigger={refreshTrigger} />
+            )}
+            {activeTab === 'live-binance' && (
+              <LiveBinanceOrders />
             )}
             {activeTab === 'history' && (
               <OrderHistory />
