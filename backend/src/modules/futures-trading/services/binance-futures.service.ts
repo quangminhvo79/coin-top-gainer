@@ -26,9 +26,9 @@ export class BinanceFuturesService {
       apiSecret: platform.apiSecret,
     };
 
-    // if (platform.isTestnet) {
-    //   configurationRestAPI.baseURL = 'https://testnet.binancefuture.com';
-    // }
+    if (platform.isTestnet) {
+      configurationRestAPI.baseURL = 'https://testnet.binancefuture.com';
+    }
 
     return new DerivativesTradingUsdsFutures({ configurationRestAPI });
   }

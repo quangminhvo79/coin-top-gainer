@@ -6,7 +6,6 @@ import {
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
-import { join } from 'path';
 // @ts-ignore - Type issues with @fastify/cookie
 import cookie from '@fastify/cookie';
 
@@ -43,18 +42,11 @@ async function bootstrap() {
 
   app.setGlobalPrefix(configService.get('API_PREFIX') || 'api/v1');
 
-  // Serve static files (CMS)
-  app.useStaticAssets({
-    root: join(__dirname, '..', 'public'),
-    prefix: '/',
-  });
-
   const port = configService.get('PORT') || 3001;
   await app.listen(port, '0.0.0.0');
 
   console.log(`Application is running on: http://localhost:${port}`);
-  console.log(`CMS available at: http://localhost:${port}`);
-  console.log(`API documentation: http://localhost:${port}/${configService.get('API_PREFIX')}`);
+  console.log(`API available at: http://localhost:${port}/${configService.get('API_PREFIX')}`);
 }
 
 bootstrap();

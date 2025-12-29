@@ -48,22 +48,22 @@ export class Account {
   @Column({ default: true })
   isActive: boolean;
 
-  @ManyToOne(() => User, (user) => user.accounts, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
-  user: User;
-
   @Column()
   userId: string;
-
-  @OneToMany(() => Balance, (balance) => balance.account)
-  balances: Balance[];
-
-  @OneToMany(() => PnlRecord, (pnl) => pnl.account)
-  pnlRecords: PnlRecord[];
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => User, (user) => user.accounts, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
+  @OneToMany(() => Balance, (balance) => balance.account)
+  balances: Balance[];
+
+  @OneToMany(() => PnlRecord, (pnl) => pnl.account)
+  pnlRecords: PnlRecord[];
 }
