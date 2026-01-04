@@ -9,6 +9,7 @@ import { TokenBookmarkModule } from './modules/token-bookmark/token-bookmark.mod
 import { PnlModule } from './modules/pnl/pnl.module';
 import { TradingPlatformModule } from './modules/trading-platform/trading-platform.module';
 import { FuturesTradingModule } from './modules/futures-trading/futures-trading.module';
+import { VnStockRsiModule } from './modules/vn-stock-rsi/vn-stock-rsi.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { FuturesTradingModule } from './modules/futures-trading/futures-trading.
     PnlModule,
     TradingPlatformModule,
     FuturesTradingModule,
+    VnStockRsiModule,
   ],
 })
 export class AppModule {}
